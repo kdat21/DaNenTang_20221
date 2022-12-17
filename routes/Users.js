@@ -9,7 +9,10 @@ usersRoutes.get(
     "/getAllUsers",
     asyncWrapper(usersController.getAll)
 );
-
+usersRoutes.delete(
+    "/:id",
+    asyncWrapper(usersController.delete)
+)
 usersRoutes.post(
     "/register",
     asyncWrapper(usersController.register)

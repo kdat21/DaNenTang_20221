@@ -33,8 +33,8 @@ usersController.register = async (req, res, next) => {
             phonenumber: phonenumber,
             password: hashedPassword,
             username: username,
-            // avatar: "60c39f54f0b2c4268eb53367",
-            // cover_image: "60c39eb8f0b2c4268eb53366"
+            avatar: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/avatar%2Fdefault%2Fistockphoto-1300845620-612x612.jpg?alt=media&token=fd9f9405-06ef-4dea-9058-19f2dc741536",
+            cover_image: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/cover_image%2Fdefault%2Frn_image_picker_lib_temp_5648d9eb-27fa-4859-a2af-03765e85480f.jpg?alt=media&token=03c5edee-1f74-4a13-ba88-6ab61e4d2993"
         });
 
         try {
@@ -51,8 +51,8 @@ usersController.register = async (req, res, next) => {
                     id: savedUser._id,
                     phonenumber: savedUser.phonenumber,
                     username: savedUser.username,
-                    avatar: avatar,
-                    cover_image: coverImage,
+                    avatar: savedUser.avatar,
+                    cover_image: savedUser.coverImage,
                 },
                 token: token
             })
@@ -353,7 +353,7 @@ usersController.searchUser = async (req, res, next) => {
         let searchKey = new RegExp(req.body.keyword, 'i')
         // let result = await UserModel.find({phonenumber: searchKey}).limit(10).populate('avatar').populate('cover_image').exec();
         let result = await UserModel.find({phonenumber: searchKey}).limit(10).exec();
-        
+
         res.status(200).json({
             code: 200,
             message: "Tìm kiếm thành công",
@@ -372,6 +372,20 @@ usersController.getAll = async (req, res, next) => {
         res.status(200).json({
             code: 200,
             message: "Tìm kiếm thành công",
+            data: result
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message
+        });
+    }
+}
+usersController.delete = async (req, res, next) => {
+    try {
+        let result = await UserModel.findByIdAndDelete(req.params.id);
+        res.status(200).json({
+            code: 200,
+            message: "Xóa thành công",
             data: result
         })
     } catch (error) {
