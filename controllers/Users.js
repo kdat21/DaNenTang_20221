@@ -12,7 +12,7 @@ usersController.register = async (req, res, next) => {
         const {
             phonenumber,
             password,
-            username,
+            username
         } = req.body;
 
         let user = await UserModel.findOne({
@@ -27,14 +27,14 @@ usersController.register = async (req, res, next) => {
         //Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        let avatar  = await DocumentModel.findById("60c39f54f0b2c4268eb53367");
-        let coverImage  = await DocumentModel.findById("60c39eb8f0b2c4268eb53366");
+        // let avatar  = await DocumentModel.findById("60c39f54f0b2c4268eb53367");
+        // let coverImage  = await DocumentModel.findById("60c39eb8f0b2c4268eb53366");
         user = new UserModel({
             phonenumber: phonenumber,
             password: hashedPassword,
             username: username,
-            avatar: "60c39f54f0b2c4268eb53367",
-            cover_image: "60c39eb8f0b2c4268eb53366"
+            avatar: "",
+            cover_image: ""
         });
 
         try {
@@ -135,45 +135,46 @@ usersController.edit = async (req, res, next) => {
         for (let i = 0; i < listPros.length; i++) {
             let pro = listPros[i];
             if (req.body.hasOwnProperty(pro)) {
-                switch (pro) {
-                    case "avatar":
-                        let savedAvatarDocument = null;
-                        if (uploadFile.matchesFileBase64(avatar) !== false) {
-                            const avatarResult = uploadFile.uploadFile(avatar);
-                            if (avatarResult !== false) {
-                                let avatarDocument = new DocumentModel({
-                                    fileName: avatarResult.fileName,
-                                    fileSize: avatarResult.fileSize,
-                                    type: avatarResult.type
-                                });
-                                savedAvatarDocument = await avatarDocument.save();
-                            }
-                        } else {
-                            savedAvatarDocument = await DocumentModel.findById(avatar);
-                        }
-                        dataUserUpdate[pro] = savedAvatarDocument !== null ? savedAvatarDocument._id : null;
-                        break;
-                    case "cover_image":
-                        let savedCoverImageDocument = null;
-                        if (uploadFile.matchesFileBase64(cover_image) !== false) {
-                            const coverImageResult = uploadFile.uploadFile(cover_image);
-                            if (coverImageResult !== false) {
-                                let coverImageDocument = new DocumentModel({
-                                    fileName: coverImageResult.fileName,
-                                    fileSize: coverImageResult.fileSize,
-                                    type: coverImageResult.type
-                                });
-                                savedCoverImageDocument = await coverImageDocument.save();
-                            }
-                        } else {
-                            savedCoverImageDocument = await DocumentModel.findById(cover_image);
-                        }
-                        dataUserUpdate[pro] = savedCoverImageDocument !== null ? savedCoverImageDocument._id : null;
-                        break;
-                    default:
-                        dataUserUpdate[pro] = req.body[pro];
-                        break;
-                }
+                // switch (pro) {
+                //     case "avatar":
+                //         let savedAvatarDocument = null;
+                //         if (uploadFile.matchesFileBase64(avatar) !== false) {
+                //             const avatarResult = uploadFile.uploadFile(avatar);
+                //             if (avatarResult !== false) {
+                //                 let avatarDocument = new DocumentModel({
+                //                     fileName: avatarResult.fileName,
+                //                     fileSize: avatarResult.fileSize,
+                //                     type: avatarResult.type
+                //                 });
+                //                 savedAvatarDocument = await avatarDocument.save();
+                //             }
+                //         } else {
+                //             savedAvatarDocument = await DocumentModel.findById(avatar);
+                //         }
+                //         dataUserUpdate[pro] = savedAvatarDocument !== null ? savedAvatarDocument._id : null;
+                //         break;
+                //     case "cover_image":
+                //         let savedCoverImageDocument = null;
+                //         if (uploadFile.matchesFileBase64(cover_image) !== false) {
+                //             const coverImageResult = uploadFile.uploadFile(cover_image);
+                //             if (coverImageResult !== false) {
+                //                 let coverImageDocument = new DocumentModel({
+                //                     fileName: coverImageResult.fileName,
+                //                     fileSize: coverImageResult.fileSize,
+                //                     type: coverImageResult.type
+                //                 });
+                //                 savedCoverImageDocument = await coverImageDocument.save();
+                //             }
+                //         } else {
+                //             savedCoverImageDocument = await DocumentModel.findById(cover_image);
+                //         }
+                //         dataUserUpdate[pro] = savedCoverImageDocument !== null ? savedCoverImageDocument._id : null;
+                //         break;
+                //     default:
+                //         dataUserUpdate[pro] = req.body[pro];
+                //         break;
+                // }
+                dataUserUpdate[pro] = req.body[pro];
             }
         }
 
@@ -347,8 +348,8 @@ usersController.setBlockDiary = async (req, res, next) => {
 usersController.searchUser = async (req, res, next) => {
     try {
         let searchKey = new RegExp(req.body.keyword, 'i')
-        let result = await UserModel.find({phonenumber: searchKey}).limit(10).populate('avatar').populate('cover_image').exec();
-
+        // let result = await UserModel.find({phonenumber: searchKey}).limit(10).populate('avatar').populate('cover_image').exec();
+        let result = await UserModel.find({phonenumber: searchKey}).limit(10).exec();
         res.status(200).json({
             code: 200,
             message: "Tìm kiếm thành công",
@@ -361,5 +362,18 @@ usersController.searchUser = async (req, res, next) => {
         });
     }
 }
-
+usersController.getAll = async (req, res, next) => {
+    try {
+        let result = await UserModel.find().exec();
+        res.status(200).json({
+            code: 200,
+            message: "Tìm kiếm thành công",
+            data: result
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message
+        });
+    }
+}
 module.exports = usersController;

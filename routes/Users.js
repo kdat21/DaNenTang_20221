@@ -5,6 +5,11 @@ const usersRoutes = express.Router();
 const ValidationMiddleware = require("../middlewares/validate");
 const auth = require("../middlewares/auth");
 
+usersRoutes.get(
+    "/getAllUsers",
+    asyncWrapper(usersController.getAll)
+);
+
 usersRoutes.post(
     "/register",
     asyncWrapper(usersController.register)
