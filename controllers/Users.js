@@ -12,7 +12,7 @@ usersController.register = async (req, res, next) => {
         const {
             phonenumber,
             password,
-            username
+            username,
         } = req.body;
 
         let user = await UserModel.findOne({
@@ -33,8 +33,8 @@ usersController.register = async (req, res, next) => {
             phonenumber: phonenumber,
             password: hashedPassword,
             username: username,
-            avatar: "",
-            cover_image: ""
+            // avatar: "60c39f54f0b2c4268eb53367",
+            // cover_image: "60c39eb8f0b2c4268eb53366"
         });
 
         try {
@@ -116,10 +116,10 @@ usersController.edit = async (req, res, next) => {
     try {
         let userId = req.userId;
         let user;
-        const {
-            avatar,
-            cover_image,
-        } = req.body;
+        // const {
+        //     avatar,
+        //     cover_image,
+        // } = req.body;
         const dataUserUpdate = {};
         const listPros = [
             "username",
@@ -187,7 +187,8 @@ usersController.edit = async (req, res, next) => {
         if (!user) {
             return res.status(httpStatus.NOT_FOUND).json({message: "Can not find user"});
         }
-        user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
+        // user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
+        user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary');
         return res.status(httpStatus.OK).json({
             data: user
         });
@@ -239,7 +240,8 @@ usersController.changePassword = async (req, res, next) => {
             {username: user.username, firstName: user.firstName, lastName: user.lastName, id: user._id},
             JWT_SECRET
         );
-        user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
+        // user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
+        user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary')
         return res.status(httpStatus.OK).json({
             data: user,
             token: token
@@ -259,7 +261,8 @@ usersController.show = async (req, res, next) => {
             userId = req.userId;
         }
 
-        let user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
+        // let user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
+        user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary')
         if (user == null) {
             return res.status(httpStatus.NOT_FOUND).json({message: "Can not find user"});
         }
@@ -350,6 +353,7 @@ usersController.searchUser = async (req, res, next) => {
         let searchKey = new RegExp(req.body.keyword, 'i')
         // let result = await UserModel.find({phonenumber: searchKey}).limit(10).populate('avatar').populate('cover_image').exec();
         let result = await UserModel.find({phonenumber: searchKey}).limit(10).exec();
+        
         res.status(200).json({
             code: 200,
             message: "Tìm kiếm thành công",
