@@ -11,14 +11,14 @@ const postsSchema = new mongoose.Schema({
     },
     images: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Documents"
+            type: String,
+            required: false,
         }
     ],
     videos: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Documents"
+            type: String,
+            required: false,
         }
     ],
     like: [
