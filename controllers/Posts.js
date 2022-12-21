@@ -12,7 +12,7 @@ const uploadFile = require('../functions/uploadFile');
 
 const postsController = {};
 postsController.create = async (req, res, next) => {
-    console.log(req.body);
+    // console.log(req.body);
     let userId = req.userId;
     try {
         const {

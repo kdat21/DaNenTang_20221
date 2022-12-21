@@ -10,7 +10,7 @@ postCommentRoutes.post(
     asyncWrapper(postCommentController.create),
 );
 
-postCommentRoutes.get(
+postCommentRoutes.post(
     "/list/:postId",
     auth,
     asyncWrapper(postCommentController.list),
