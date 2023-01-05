@@ -68,8 +68,9 @@ friendsController.getRequest = async (req, res, next) => {
     try {
         let receiver = req.userId;
         let requested = await FriendModel.find({receiver: receiver, status: "0" }).distinct('sender')
-        let users = await UserModel.find().where('_id').in(requested).populate('avatar').populate('cover_image').exec()
-   
+        // let users = await UserModel.find().where('_id').in(requested).populate('avatar').populate('cover_image').exec()
+        let users = await UserModel.find().where('_id').in(requested).exec()
+
         res.status(200).json({
             code: 200,
             message: "Danh sách lời mời kết bạn",
