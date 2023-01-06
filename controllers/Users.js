@@ -279,24 +279,17 @@ usersController.setBlock = async (req, res, next) => {
         let targetId = req.body.user_id;
         let type = req.body.type;
         let user = await UserModel.findById(req.userId);
-        blocked = []
-        if (user.hasOwnProperty('blocked')) {
-            blocked = user.blocked_inbox
-        }
-    
+
         if(type) {
-     
-            if(blocked.indexOf(targetId) === -1) {
-                blocked.push(targetId);
+            if(user.blocked_inbox.indexOf(targetId) === -1) {
+                user.blocked_inbox.push(targetId);
             }
         } else {
-            const index = blocked.indexOf(targetId);
+            const index = user.blocked_inbox.indexOf(targetId);
             if (index > -1) {
-                blocked.splice(index, 1);
+                user.blocked_inbox.splice(index, 1);
             }
         }
-
-        user.blocked_inbox = blocked;
         user.save();
 
         res.status(200).json({
@@ -316,24 +309,16 @@ usersController.setBlockDiary = async (req, res, next) => {
         let targetId = req.body.user_id;
         let type = req.body.type;
         let user = await UserModel.findById(req.userId);
-        blocked = []
-        if (user.hasOwnProperty('blocked')) {
-            blocked = user.blocked_diary
-        }
-    
         if(type) {
-     
-            if(blocked.indexOf(targetId) === -1) {
-                blocked.push(targetId);
+            if(user.blocked_diary.indexOf(targetId) === -1) {
+                user.blocked_diary.push(targetId);
             }
         } else {
-            const index = blocked.indexOf(targetId);
+            const index = user.blocked_diary.indexOf(targetId);
             if (index > -1) {
-                blocked.splice(index, 1);
+                user.blocked_diary.splice(index, 1);
             }
         }
-
-        user.blocked_diary = blocked;
         user.save();
 
         res.status(200).json({
