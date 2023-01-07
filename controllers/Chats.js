@@ -27,11 +27,11 @@ chatController.send = async (req, res, next) => {
                 }
             } else {
                 chat = new ChatModel({
-                   type: PRIVATE_CHAT,
-                   member: [
-                       receivedId,
-                       userId
-                   ]
+                    type: PRIVATE_CHAT,
+                    member: [
+                        receivedId,
+                        userId
+                    ]
                 });
                 await chat.save();
                 chatIdSend = chat._id;
@@ -82,6 +82,18 @@ chatController.send = async (req, res, next) => {
         });
     }
 }
+
+chatController.getAll = async (req, res, next) => {
+    try {
+        const chats = await ChatModel.find({ member: req.userId });
+        return res.status(httpStatus.OK).json({ chats })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message
+        });
+    }
+}
+
 chatController.getMessages = async (req, res, next) => {
     try {
         let messages = await MessagesModel.find({
