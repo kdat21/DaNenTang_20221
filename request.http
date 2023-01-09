@@ -1,0 +1,32 @@
+POST http://localhost:8000/api/v1/users/login
+Content-Type: application/json
+
+{
+    "phonenumber":"0343",
+    "password": "dat"
+}
+
+###
+
+GET http://localhost:8000/api/v1/chats/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRhdCIsImlkIjoiNjNhMzMyN2E5OGJkMDEzMmZjZWFiMDZlIiwiaWF0IjoxNjczMDgxMzMxfQ.wd_pxa0sdMNh__XvFmQPGZR4W6IDFNXOJTYDDK6eOUc
+
+###
+
+GET http://localhost:8000/api/v1/chats/getMessages/63b931d71324dd326057ecca
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRhdCIsImlkIjoiNjNhMzMyN2E5OGJkMDEzMmZjZWFiMDZlIiwiaWF0IjoxNjczMDgxMzMxfQ.wd_pxa0sdMNh__XvFmQPGZR4W6IDFNXOJTYDDK6eOUc
+
+###
+
+POST http://localhost:8000/api/v1/chats/send
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRhdCIsImlkIjoiNjNhMzMyN2E5OGJkMDEzMmZjZWFiMDZlIiwiaWF0IjoxNjczMDgxMzMxfQ.wd_pxa0sdMNh__XvFmQPGZR4W6IDFNXOJTYDDK6eOUc
+
+{
+    "chatId": "63b931d71324dd326057ecca",
+    "receivedId": "63b931d71324dd326057ecca",
+    "type": "PRIVATE_CHAT",
+    "content": "3rd message"
+}

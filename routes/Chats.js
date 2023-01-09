@@ -1,5 +1,5 @@
 const chatController = require("../controllers/Chats");
-const {asyncWrapper} = require("../utils/asyncWrapper");
+const { asyncWrapper } = require("../utils/asyncWrapper");
 const express = require("express");
 const chatsRoutes = express.Router();
 const auth = require("../middlewares/auth");
@@ -8,6 +8,12 @@ chatsRoutes.post(
     "/send",
     auth,
     asyncWrapper(chatController.send),
+);
+
+chatsRoutes.get(
+    "/",
+    auth,
+    asyncWrapper(chatController.getAll)
 );
 
 chatsRoutes.get(
