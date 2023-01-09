@@ -298,4 +298,36 @@ postsController.list = async (req, res, next) => {
     }
 }
 
+postsController.search = async (req, res, next) => {
+    try {
+        let allPosts = [];
+        let allUsers = [];
+        let posts = [];
+        let blockedDiaries = [];
+        let keyword = req.body.keyword;
+
+        allPosts = await PostModel.find().exec();
+        allUsers = await UserModel.find().select('_id blocked_diary');
+
+        allUsers.forEach(e => {
+            let tmp = [];
+            tmp.concat(e.blocked_diary);
+            if (tmp.includes(req.userId)) {
+                blockedDiaries.push(e._id);
+            }
+        })
+        allPosts.forEach(async e => {
+            if (('' + e.described).toUpperCase().includes('' + keyword.toUpperCase()) && !blockedDiaries.includes(e.author)) {
+                posts.push(e);
+            }
+        });
+        
+        return res.status(httpStatus.OK).json({
+            data: posts
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message: error.message});
+    }
+}
+
 module.exports = postsController;
