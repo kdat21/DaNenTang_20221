@@ -243,7 +243,7 @@ postsController.list = async (req, res, next) => {
             //         model: 'Documents',
             //     },
             // });
-            posts = await PostModel.find({author: req.query.userId});
+            posts = await PostModel.find({author: req.query.userId}).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
         } else {
             // get list friend of 1 user
             let friends = await FriendModel.find({
@@ -282,7 +282,7 @@ postsController.list = async (req, res, next) => {
             // });
             posts = await PostModel.find({
                 "author": listIdFriends
-            });
+            }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
         }
         let postWithIsLike = [];
         for (let i = 0; i < posts.length; i ++) {
