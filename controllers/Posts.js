@@ -243,7 +243,13 @@ postsController.list = async (req, res, next) => {
             //         model: 'Documents',
             //     },
             // });
-            posts = await PostModel.find({author: req.query.userId});
+            posts = await PostModel
+                .find({author: req.query.userId})
+                .sort({
+                    updatedAt: -1
+                })
+                .skip(parseInt(req.query.skip))
+                .limit(parseInt(req.query.limit));
         } else {
             // get list friend of 1 user
             let friends = await FriendModel.find({
@@ -280,9 +286,15 @@ postsController.list = async (req, res, next) => {
             //         model: 'Documents',
             //     },
             // });
-            posts = await PostModel.find({
-                "author": listIdFriends
-            });
+            posts = await PostModel
+                .find({
+                    "author": listIdFriends
+                })
+                .sort({
+                    updatedAt: -1
+                })
+                .skip(parseInt(req.query.skip))
+                .limit(parseInt(req.query.limit));
         }
         let postWithIsLike = [];
         for (let i = 0; i < posts.length; i ++) {
@@ -293,6 +305,38 @@ postsController.list = async (req, res, next) => {
         return res.status(httpStatus.OK).json({
             data: postWithIsLike
         });
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message: error.message});
+    }
+}
+
+postsController.search = async (req, res, next) => {
+    try {
+        let allPosts = [];
+        let allUsers = [];
+        let posts = [];
+        let blockedDiaries = [];
+        let keyword = req.body.keyword;
+
+        allPosts = await PostModel.find().exec();
+        allUsers = await UserModel.find().select('_id blocked_diary');
+
+        allUsers.forEach(e => {
+            let tmp = [];
+            tmp.concat(e.blocked_diary);
+            if (tmp.includes(req.userId)) {
+                blockedDiaries.push(e._id);
+            }
+        })
+        allPosts.forEach(async e => {
+            if (('' + e.described).toUpperCase().includes('' + keyword.toUpperCase()) && !blockedDiaries.includes(e.author)) {
+                posts.push(e);
+            }
+        });
+        
+        return res.status(httpStatus.OK).json({
+            data: posts
+        })
     } catch (error) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message: error.message});
     }

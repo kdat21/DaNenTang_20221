@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/Users");
+const FriendModel = require("../models/Friends");
 const DocumentModel = require("../models/Documents");
 const httpStatus = require("../utils/httpStatus");
 const bcrypt = require("bcrypt");
@@ -312,11 +313,39 @@ usersController.setBlockDiary = async (req, res, next) => {
         if (type) {
             if (user.blocked_diary.indexOf(targetId) === -1) {
                 user.blocked_diary.push(targetId);
+                try {
+                    let friendRc1 = await FriendModel.findOne({ sender: req.userId, receiver: targetId });
+                    let friendRc2 = await FriendModel.findOne({ sender: targetId, receiver: req.userId });
+                    let final;
+                    if (friendRc1 == null) {
+                        final = friendRc2;
+                    } else {
+                        final = friendRc1;
+                    }
+                    final.status = '4';
+                    final.save();
+                } catch (error) {
+                    console.log(error);
+                }
             }
         } else {
             const index = user.blocked_diary.indexOf(targetId);
             if (index > -1) {
                 user.blocked_diary.splice(index, 1);
+                try {
+                    let friendRc1 = await FriendModel.findOne({ sender: req.userId, receiver: targetId });
+                    let friendRc2 = await FriendModel.findOne({ sender: targetId, receiver: req.userId });
+                    let final;
+                    if (friendRc1 == null) {
+                        final = friendRc2;
+                    } else {
+                        final = friendRc1;
+                    }
+                    final.status = '1';
+                    final.save();
+                } catch (error) {
+                    console.log(error);
+                }
             }
         }
         user.save();

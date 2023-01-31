@@ -2,6 +2,8 @@ const PostModel = require("../models/Posts");
 const PostCommentModel = require("../models/PostComment");
 const httpStatus = require("../utils/httpStatus");
 const postCommentController = {};
+const FriendModel = require("../models/Friends");
+
 postCommentController.create = async (req, res, next) => {
     try {
         let userId = req.userId;
@@ -48,9 +50,30 @@ postCommentController.create = async (req, res, next) => {
 
 postCommentController.list = async (req, res, next) => {
     try {
-        // console.log(req.body);
+        // get list friend of 1 user
+        let friends = await FriendModel.find({
+            status: "1",
+        }).or([
+            {
+                sender: req.userId
+            },
+            {
+                receiver: req.userId
+            }
+        ])
+        let listIdFriends = [];
+        for (let i = 0; i < friends.length; i++) {
+            if (friends[i].sender.toString() === req.userId.toString()) {
+                listIdFriends.push(friends[i].receiver);
+            } else {
+                listIdFriends.push(friends[i].sender);
+            }
+        }
+        listIdFriends.push(req.userId);
+        // console.log(listIdFriends);
         let postComments = await PostCommentModel.find({
-            post: req.params.postId
+            post: req.params.postId,
+            user: listIdFriends
         }).populate('user', [
             'username', 'phonenumber'
         ]).skip(req.body.skip).limit(req.body.limit);
