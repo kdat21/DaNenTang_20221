@@ -11,6 +11,7 @@ const friendsController = {};
 // 1: kết bạn
 // 2: từ chối
 // 3: hủy kết bạn
+// 4: block nhật ký lẫn nhau
 
 friendsController.setRequest = async (req, res, next) => {
     try {

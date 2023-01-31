@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/Users");
+const FriendModel = require("../models/Friends");
 const DocumentModel = require("../models/Documents");
 const httpStatus = require("../utils/httpStatus");
 const bcrypt = require("bcrypt");
-const {JWT_SECRET} = require("../constants/constants");
+const { JWT_SECRET } = require("../constants/constants");
 const uploadFile = require('../functions/uploadFile');
 const usersController = {};
 
@@ -43,7 +44,7 @@ usersController.register = async (req, res, next) => {
             // login for User
             // create and assign a token
             const token = jwt.sign(
-                {username: savedUser.username, firstName: savedUser.firstName, lastName: savedUser.lastName, id: savedUser._id},
+                { username: savedUser.username, firstName: savedUser.firstName, lastName: savedUser.lastName, id: savedUser._id },
                 JWT_SECRET
             );
             res.status(httpStatus.CREATED).json({
@@ -94,7 +95,7 @@ usersController.login = async (req, res, next) => {
 
         // create and assign a token
         const token = jwt.sign(
-            {username: user.username, firstName: user.firstName, lastName: user.lastName, id: user._id},
+            { username: user.username, firstName: user.firstName, lastName: user.lastName, id: user._id },
             JWT_SECRET
         );
         delete user["password"];
@@ -179,13 +180,13 @@ usersController.edit = async (req, res, next) => {
         }
 
 
-        user = await UserModel.findOneAndUpdate({_id: userId}, dataUserUpdate, {
+        user = await UserModel.findOneAndUpdate({ _id: userId }, dataUserUpdate, {
             new: true,
             runValidators: true
         });
 
         if (!user) {
-            return res.status(httpStatus.NOT_FOUND).json({message: "Can not find user"});
+            return res.status(httpStatus.NOT_FOUND).json({ message: "Can not find user" });
         }
         // user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
         user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary');
@@ -201,7 +202,7 @@ usersController.edit = async (req, res, next) => {
 usersController.changePassword = async (req, res, next) => {
     try {
         let userId = req.userId;
-        let  user = await UserModel.findById(userId);
+        let user = await UserModel.findById(userId);
         if (user == null) {
             return res.status(httpStatus.UNAUTHORIZED).json({
                 message: "UNAUTHORIZED"
@@ -224,7 +225,7 @@ usersController.changePassword = async (req, res, next) => {
         const salt = await bcrypt.genSalt(10);
         const hashedNewPassword = await bcrypt.hash(newPassword, salt);
 
-        user = await UserModel.findOneAndUpdate({_id: userId}, {
+        user = await UserModel.findOneAndUpdate({ _id: userId }, {
             password: hashedNewPassword
         }, {
             new: true,
@@ -232,12 +233,12 @@ usersController.changePassword = async (req, res, next) => {
         });
 
         if (!user) {
-            return res.status(httpStatus.NOT_FOUND).json({message: "Can not find user"});
+            return res.status(httpStatus.NOT_FOUND).json({ message: "Can not find user" });
         }
 
         // create and assign a token
         const token = jwt.sign(
-            {username: user.username, firstName: user.firstName, lastName: user.lastName, id: user._id},
+            { username: user.username, firstName: user.firstName, lastName: user.lastName, id: user._id },
             JWT_SECRET
         );
         // user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
@@ -264,14 +265,14 @@ usersController.show = async (req, res, next) => {
         // let user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
         user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary')
         if (user == null) {
-            return res.status(httpStatus.NOT_FOUND).json({message: "Can not find user"});
+            return res.status(httpStatus.NOT_FOUND).json({ message: "Can not find user" });
         }
 
         return res.status(httpStatus.OK).json({
             data: user
         });
     } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message: error.message});
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 }
 usersController.setBlock = async (req, res, next) => {
@@ -280,8 +281,8 @@ usersController.setBlock = async (req, res, next) => {
         let type = req.body.type;
         let user = await UserModel.findById(req.userId);
 
-        if(type) {
-            if(user.blocked_inbox.indexOf(targetId) === -1) {
+        if (type) {
+            if (user.blocked_inbox.indexOf(targetId) === -1) {
                 user.blocked_inbox.push(targetId);
             }
         } else {
@@ -309,14 +310,42 @@ usersController.setBlockDiary = async (req, res, next) => {
         let targetId = req.body.user_id;
         let type = req.body.type;
         let user = await UserModel.findById(req.userId);
-        if(type) {
-            if(user.blocked_diary.indexOf(targetId) === -1) {
+        if (type) {
+            if (user.blocked_diary.indexOf(targetId) === -1) {
                 user.blocked_diary.push(targetId);
+                try {
+                    let friendRc1 = await FriendModel.findOne({ sender: req.userId, receiver: targetId });
+                    let friendRc2 = await FriendModel.findOne({ sender: targetId, receiver: req.userId });
+                    let final;
+                    if (friendRc1 == null) {
+                        final = friendRc2;
+                    } else {
+                        final = friendRc1;
+                    }
+                    final.status = '4';
+                    final.save();
+                } catch (error) {
+                    console.log(error);
+                }
             }
         } else {
             const index = user.blocked_diary.indexOf(targetId);
             if (index > -1) {
                 user.blocked_diary.splice(index, 1);
+                try {
+                    let friendRc1 = await FriendModel.findOne({ sender: req.userId, receiver: targetId });
+                    let friendRc2 = await FriendModel.findOne({ sender: targetId, receiver: req.userId });
+                    let final;
+                    if (friendRc1 == null) {
+                        final = friendRc2;
+                    } else {
+                        final = friendRc1;
+                    }
+                    final.status = '1';
+                    final.save();
+                } catch (error) {
+                    console.log(error);
+                }
             }
         }
         user.save();
@@ -337,7 +366,7 @@ usersController.searchUser = async (req, res, next) => {
     try {
         let searchKey = new RegExp(req.body.keyword, 'i')
         // let result = await UserModel.find({phonenumber: searchKey}).limit(10).populate('avatar').populate('cover_image').exec();
-        let result = await UserModel.find({phonenumber: searchKey}).limit(10).exec();
+        let result = await UserModel.find({ phonenumber: searchKey }).limit(10).exec();
 
         res.status(200).json({
             code: 200,
