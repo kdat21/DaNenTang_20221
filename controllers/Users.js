@@ -104,6 +104,7 @@ usersController.login = async (req, res, next) => {
                 _id: user._id,
                 phonenumber: user.phonenumber,
                 username: user.username,
+                avatar: user.avatar
             },
             token: token
         })
