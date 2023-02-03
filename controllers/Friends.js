@@ -31,6 +31,17 @@ friendsController.setRequest = async (req, res, next) => {
 
         }
 
+        let requested = await FriendModel.find({sender: req.userId, status: ['1', '4'] }).distinct('receiver')
+        let accepted = await FriendModel.find({receiver: req.userId, status: ['1', '4'] }).distinct('sender')
+        if (requested?.length + accepted?.length > 500) {
+            return res.status(200).json({
+                code: 200,
+                status: 'error',
+                success: false,
+                message: "Bạn đã có 500 bạn nên không thể kết bạn thêm.",
+            });
+        }
+
         let isFriend = await FriendModel.findOne({ sender: sender, receiver: receiver });
         if(isFriend != null){
             if (isFriend.status == '1' || checkBack.status == '4') {
@@ -65,6 +76,57 @@ friendsController.setRequest = async (req, res, next) => {
     }
 }
 
+friendsController.cancelSendRequest = async (req, res, next) => {
+    try {
+        if (req.body.userId == null) {
+            return res.status(200).json({
+                code: 200,
+                message: "Chưa truyền userId",
+                success: false
+            });
+        } else {
+            let sender = req.userId;
+            let receiver = req.body.userId;
+            let friend = await FriendModel.findOne({ sender: sender, receiver: receiver });
+            if (friend == null) {
+                let frendTmp = await FriendModel.findOne({ sender: receiver, receiver: sender });
+                if (frendTmp != null) {
+                    return res.status(200).json({
+                        code: 200,
+                        message: "Các bạn đã là bạn bè trước đó.",
+                        success: false
+                    });
+                }
+                return res.status(200).json({
+                    code: 200,
+                    message: "Chưa gửi lời mời kết bạn trước đó.",
+                    success: false
+                });
+            } else {
+                if (friend.status != 0) {
+                    return res.status(200).json({
+                        code: 200,
+                        message: "Các bạn đã là bạn bè trước đó.",
+                        success: false
+                    });
+                } else {
+                    await FriendModel.findByIdAndRemove(friend._id);
+                    return res.status(200).json({
+                        code: 200,
+                        message: "Đã hủy lời mời kết bạn.",
+                        success: true
+                    });
+                }
+            }
+        }
+
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message
+        });
+    }
+}
+
 friendsController.getRequest = async (req, res, next) => {
     try {
         let receiver = req.userId;
@@ -88,6 +150,17 @@ friendsController.getRequest = async (req, res, next) => {
 
 friendsController.setAccept = async (req, res, next) => {
     try {
+        let requested = await FriendModel.find({sender: req.userId, status: ['1', '4'] }).distinct('receiver')
+        let accepted = await FriendModel.find({receiver: req.userId, status: ['1', '4'] }).distinct('sender')
+        if (requested?.length + accepted?.length > 500) {
+            return res.status(200).json({
+                code: 200,
+                status: 'error',
+                success: false,
+                message: "Bạn đã có 500 bạn nên không thể kết bạn thêm.",
+            });
+        }
+
         let receiver = req.userId;
         let sender = req.body.user_id;
 
@@ -196,5 +269,36 @@ friendsController.listFriends = async (req, res, next) => {
     }
 }
 
+friendsController.status = async (req, res, next) => {
+    try {
+        let receiver = req.userId;
+        let sender = req.params.userId;
+
+        let friendRc1 = await FriendModel.findOne({ sender: sender, receiver: receiver });
+        let friendRc2 = await FriendModel.findOne({ sender: receiver, receiver: sender });
+        let final;
+        if (friendRc1 == null && friendRc2 == null) {
+            return res.status(200).json({
+                code: 200,
+                message: 'Các bạn chưa là bạn bè',
+                data: -1
+            })
+        }
+        if (friendRc1 == null) {
+            final = friendRc2;
+        } else {
+            final = friendRc1;
+        }
+        return res.status(200).json({
+            code: 200,
+            message: '',
+            data: final.status
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message
+        });
+    }
+}
 
 module.exports = friendsController;
