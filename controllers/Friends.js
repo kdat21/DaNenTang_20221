@@ -44,7 +44,7 @@ friendsController.setRequest = async (req, res, next) => {
 
         let isFriend = await FriendModel.findOne({ sender: sender, receiver: receiver });
         if(isFriend != null){
-            if (isFriend.status == '1' || checkBack.status == '4') {
+            if (isFriend.status == '1' || isFriend.status == '4') {
                 return res.status(200).json({
                     code: 200,
                     success: false,
@@ -174,7 +174,7 @@ friendsController.setAccept = async (req, res, next) => {
                 success: false
             });
         }
-        if ((friend.status == '1' || checkBack.status == '4') && req.body.is_accept == '2') {
+        if ((friend.status == '1' || friend.status == '4') && req.body.is_accept == '2') {
             res.status(200).json({
                 code: 200,
                 message: "Không đúng yêu cầu",
@@ -220,7 +220,7 @@ friendsController.setRemoveFriend = async (req, res, next) => {
         } else {
             final = friendRc1;
         }
-        if (final.status != '1' || checkBack.status == '4') {
+        if (final.status != '1' && final.status != '4') {
             res.status(200).json({
                 code: 200,
                 success: false,
