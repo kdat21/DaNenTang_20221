@@ -264,7 +264,7 @@ usersController.show = async (req, res, next) => {
         }
 
         // let user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary').populate('avatar').populate('cover_image');
-        user = await UserModel.findById(userId).select('phonenumber username gender birthday avatar cover_image blocked_inbox blocked_diary')
+        user = await UserModel.findById(userId);
         if (user == null) {
             return res.status(httpStatus.NOT_FOUND).json({ message: "Can not find user" });
         }
