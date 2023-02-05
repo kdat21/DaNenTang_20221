@@ -323,7 +323,7 @@ usersController.setBlockDiary = async (req, res, next) => {
                     } else {
                         final = friendRc1;
                     }
-                    final.status = '4';
+                    final.status = '3';
                     final.save();
                 } catch (error) {
                     console.log(error);
@@ -342,7 +342,7 @@ usersController.setBlockDiary = async (req, res, next) => {
                     } else {
                         final = friendRc1;
                     }
-                    final.status = '1';
+                    final.status = '3';
                     final.save();
                 } catch (error) {
                     console.log(error);

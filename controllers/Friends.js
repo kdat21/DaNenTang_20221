@@ -11,7 +11,6 @@ const friendsController = {};
 // 1: kết bạn
 // 2: từ chối
 // 3: hủy kết bạn
-// 4: block nhật ký lẫn nhau
 
 friendsController.setRequest = async (req, res, next) => {
     try {
@@ -19,7 +18,7 @@ friendsController.setRequest = async (req, res, next) => {
         let receiver = req.body.user_id;
         let checkBack = await FriendModel.findOne({ sender: receiver, receiver: sender });
         if (checkBack != null) {
-            if (checkBack.status == '0' || checkBack.status == '1' || checkBack.status == '4') {
+            if (checkBack.status == '0' || checkBack.status == '1') {
                 return res.status(200).json({
                     code: 200,
                     status: 'error',
@@ -31,8 +30,8 @@ friendsController.setRequest = async (req, res, next) => {
 
         }
 
-        let requested = await FriendModel.find({sender: req.userId, status: ['1', '4'] }).distinct('receiver')
-        let accepted = await FriendModel.find({receiver: req.userId, status: ['1', '4'] }).distinct('sender')
+        let requested = await FriendModel.find({sender: req.userId, status: ['1'] }).distinct('receiver')
+        let accepted = await FriendModel.find({receiver: req.userId, status: ['1'] }).distinct('sender')
         if (requested?.length + accepted?.length > 500) {
             return res.status(200).json({
                 code: 200,
@@ -44,7 +43,7 @@ friendsController.setRequest = async (req, res, next) => {
 
         let isFriend = await FriendModel.findOne({ sender: sender, receiver: receiver });
         if(isFriend != null){
-            if (isFriend.status == '1' || isFriend.status == '4') {
+            if (isFriend.status == '1') {
                 return res.status(200).json({
                     code: 200,
                     success: false,
@@ -150,8 +149,8 @@ friendsController.getRequest = async (req, res, next) => {
 
 friendsController.setAccept = async (req, res, next) => {
     try {
-        let requested = await FriendModel.find({sender: req.userId, status: ['1', '4'] }).distinct('receiver')
-        let accepted = await FriendModel.find({receiver: req.userId, status: ['1', '4'] }).distinct('sender')
+        let requested = await FriendModel.find({sender: req.userId, status: ['1'] }).distinct('receiver')
+        let accepted = await FriendModel.find({receiver: req.userId, status: ['1'] }).distinct('sender')
         if (requested?.length + accepted?.length > 500) {
             return res.status(200).json({
                 code: 200,
@@ -174,7 +173,7 @@ friendsController.setAccept = async (req, res, next) => {
                 success: false
             });
         }
-        if ((friend.status == '1' || friend.status == '4') && req.body.is_accept == '2') {
+        if ((friend.status == '1') && req.body.is_accept == '2') {
             res.status(200).json({
                 code: 200,
                 message: "Không đúng yêu cầu",
@@ -220,7 +219,7 @@ friendsController.setRemoveFriend = async (req, res, next) => {
         } else {
             final = friendRc1;
         }
-        if (final.status != '1' && final.status != '4') {
+        if (final.status != '1') {
             res.status(200).json({
                 code: 200,
                 success: false,
@@ -247,8 +246,8 @@ friendsController.setRemoveFriend = async (req, res, next) => {
 friendsController.listFriends = async (req, res, next) => {
     try {
         if (req.body.user_id == null) {
-            let requested = await FriendModel.find({sender: req.userId, status: ['1', '4'] }).distinct('receiver')
-            let accepted = await FriendModel.find({receiver: req.userId, status: ['1', '4'] }).distinct('sender')
+            let requested = await FriendModel.find({sender: req.userId, status: ['1'] }).distinct('receiver')
+            let accepted = await FriendModel.find({receiver: req.userId, status: ['1'] }).distinct('sender')
 
             // let users = await UserModel.find().where('_id').in(requested.concat(accepted)).populate('avatar').populate('cover_image').exec()
             let users = await UserModel.find().where('_id').in(requested.concat(accepted)).exec();
