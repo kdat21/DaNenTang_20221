@@ -14,6 +14,10 @@ usersRoutes.delete(
     asyncWrapper(usersController.delete)
 )
 usersRoutes.post(
+    "/updateImage",
+    asyncWrapper(usersController.updateImage)
+)
+usersRoutes.post(
     "/register",
     asyncWrapper(usersController.register)
 );

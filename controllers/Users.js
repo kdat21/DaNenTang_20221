@@ -34,8 +34,8 @@ usersController.register = async (req, res, next) => {
             phonenumber: phonenumber,
             password: hashedPassword,
             username: username,
-            avatar: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/avatar%2Fdefault%2Fistockphoto-1300845620-612x612.jpg?alt=media&token=fd9f9405-06ef-4dea-9058-19f2dc741536",
-            cover_image: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/cover_image%2Fdefault%2Frn_image_picker_lib_temp_5648d9eb-27fa-4859-a2af-03765e85480f.jpg?alt=media&token=03c5edee-1f74-4a13-ba88-6ab61e4d2993"
+            avatar: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/avatar%2Fdefault%2Fistockphoto-1300845620-612x612.jpg?alt=media",
+            cover_image: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/cover_image%2Fdefault%2Frn_image_picker_lib_temp_5648d9eb-27fa-4859-a2af-03765e85480f.jpg?alt=media"
         });
 
         try {
@@ -398,6 +398,23 @@ usersController.getAll = async (req, res, next) => {
 usersController.delete = async (req, res, next) => {
     try {
         let result = await UserModel.findByIdAndDelete(req.params.id);
+        res.status(200).json({
+            code: 200,
+            message: "Xóa thành công",
+            data: result
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message
+        });
+    }
+}
+usersController.updateImage = async (req, res, next) => {
+    try {
+        let result = await UserModel.updateMany({
+            avatar: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/avatar%2Fdefault%2Fistockphoto-1300845620-612x612.jpg?alt=media",
+            cover_image: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/cover_image%2Fdefault%2Frn_image_picker_lib_temp_5648d9eb-27fa-4859-a2af-03765e85480f.jpg?alt=media"
+        });
         res.status(200).json({
             code: 200,
             message: "Xóa thành công",
