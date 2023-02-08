@@ -306,63 +306,31 @@ usersController.setBlock = async (req, res, next) => {
         });
     }
 }
+
 usersController.setBlockDiary = async (req, res, next) => {
     try {
         let targetId = req.body.user_id;
-        let type = req.body.type;
-        let user = await UserModel.findById(req.userId);
-        if (type) {
-            if (user.blocked_diary.indexOf(targetId) === -1) {
-                user.blocked_diary.push(targetId);
-                try {
-                    let friendRc1 = await FriendModel.findOne({ sender: req.userId, receiver: targetId });
-                    let friendRc2 = await FriendModel.findOne({ sender: targetId, receiver: req.userId });
-                    let final;
-                    if (friendRc1 == null) {
-                        final = friendRc2;
-                    } else {
-                        final = friendRc1;
-                    }
-                    final.status = '3';
-                    final.save();
-                } catch (error) {
-                    console.log(error);
-                }
-            }
+        let friendRc1 = await FriendModel.findOne({ sender: req.userId, receiver: targetId });
+        let friendRc2 = await FriendModel.findOne({ sender: targetId, receiver: req.userId });
+        let final;
+        if (friendRc1 == null) {
+            final = friendRc2;
         } else {
-            const index = user.blocked_diary.indexOf(targetId);
-            if (index > -1) {
-                user.blocked_diary.splice(index, 1);
-                try {
-                    let friendRc1 = await FriendModel.findOne({ sender: req.userId, receiver: targetId });
-                    let friendRc2 = await FriendModel.findOne({ sender: targetId, receiver: req.userId });
-                    let final;
-                    if (friendRc1 == null) {
-                        final = friendRc2;
-                    } else {
-                        final = friendRc1;
-                    }
-                    final.status = '3';
-                    final.save();
-                } catch (error) {
-                    console.log(error);
-                }
-            }
+            final = friendRc1;
         }
-        user.save();
-
+        final.status = '3';
+        final.save();
         res.status(200).json({
             code: 200,
             message: "Thao tác thành công",
-            data: user
         });
-
-    } catch (e) {
+    } catch (error) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: e.message
+            message: error.message
         });
     }
 }
+
 usersController.searchUser = async (req, res, next) => {
     try {
         let searchKey = new RegExp(req.body.keyword, 'i')
@@ -411,9 +379,12 @@ usersController.delete = async (req, res, next) => {
 }
 usersController.updateImage = async (req, res, next) => {
     try {
+        // let result = await UserModel.updateMany({
+        //     avatar: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/avatar%2Fdefault%2Fistockphoto-1300845620-612x612.jpg?alt=media",
+        //     cover_image: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/cover_image%2Fdefault%2Frn_image_picker_lib_temp_5648d9eb-27fa-4859-a2af-03765e85480f.jpg?alt=media"
+        // });
         let result = await UserModel.updateMany({
-            avatar: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/avatar%2Fdefault%2Fistockphoto-1300845620-612x612.jpg?alt=media",
-            cover_image: "https://firebasestorage.googleapis.com/v0/b/social-network-app-19cd7.appspot.com/o/cover_image%2Fdefault%2Frn_image_picker_lib_temp_5648d9eb-27fa-4859-a2af-03765e85480f.jpg?alt=media"
+            blocked_diary: []
         });
         res.status(200).json({
             code: 200,

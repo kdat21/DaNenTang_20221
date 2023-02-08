@@ -253,7 +253,7 @@ postsController.list = async (req, res, next) => {
         } else {
             // get list friend of 1 user
             let friends = await FriendModel.find({
-                status: "1",
+                status: ['1'],
             }).or([
                 {
                     sender: userId
